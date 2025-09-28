@@ -1,0 +1,109 @@
+# -- Dev ---------------------------------------------------------------------
+
+# Input/Output (arbitrary nesting)
+**/data/
+**/input/
+**/output/
+
+# Archives (arbitrary nesting and basename)
+**/archive/
+*_archive
+
+# Docs
+docs/
+site/
+
+# Environment
+renv/
+renv.lock
+
+# Keys/settings
+.env
+
+# -- System config/cache -----------------------------------------------------
+
+# IDE
+.vscode/
+.ipynb_checkpoints
+
+# OS
+~$*
+*.DS_Store
+
+# -- Python config/cache -----------------------------------------------------
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# pyenv
+.python-version
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.cache
+coverage.xml
+*.cover
+.hypothesis/
+.benchmarks/
+
+# Typing
+.mypy_cache/
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# -- R config/cache ----------------------------------------------------------
+
+# Session data files
+.RData
+.Rdata
+.RDataTmp
+
+# History files
+.Rhistory
+.Rapp.history
+
+# User files/folders
+.Rprofile
+.Ruserdata
+.Rproj.user
+
+# Log files
+*.log
+*.aux
+*.out
+
+# Knitr and R Markdown temporary folders
+/cache/
+*_cache/
+
+# Other
+.quarto
+.httr-oauth
+/.quarto/

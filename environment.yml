@@ -1,0 +1,37 @@
+# To create environment {name} from this file, run:
+#
+#     $ mamba env create -f environment.yml
+#
+# Then, activate it using:
+#
+#     $ conda activate {name}
+#
+#
+# To upgrade/downgrade packages in the activated environment run either:
+#
+#     $ python -m pip install <pkg>==<ver>     (pip install/downgrade)
+#     $ python -m pip install --upgrade <pkg>  (pip upgrade)
+#     $ python -m pip uninstall <pkg>          (pip uninstall)
+#     $ conda install <pkg>=<ver>              (conda install/up/downgrade)
+#     $ conda remove <pkg>                     (conda uninstall)
+#
+
+name: snowflake-quickstarts
+channels:
+  - conda-forge
+  - nodefaults
+
+dependencies:
+  - python=3.13
+  - pip>=19.0
+  # - jupyter
+  # - ipykernel
+
+  - python-dotenv
+  # - pandas
+  # - scikit-learn
+  # - scipy
+  # - matplotlib
+
+  - pip:
+    - snowflake-connector-python
