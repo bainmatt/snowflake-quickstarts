@@ -1,5 +1,5 @@
 """
-Snowflake quickstart: Getting Started with Python.
+Snowflake quickstart: Getting Started with Python
 
 Adapted from:
 https://quickstarts.snowflake.com/guide/getting_started_with_python/#0
@@ -14,8 +14,8 @@ import snowflake.connector
 from dotenv import load_dotenv
 
 load_dotenv()
-USER = 'matthewbain'
-ACCOUNT = 'po96398.us-east4.gcp'
+USER = os.getenv('SNOWSQL_USER')
+ACCOUNT = os.getenv('SNOWSQL_ACCOUNT')
 PASSWORD = os.getenv('SNOWSQL_PWD')
 
 
