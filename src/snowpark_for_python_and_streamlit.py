@@ -1,10 +1,16 @@
 """
 Snowflake quickstart: Getting Started With Snowpark for Python and Streamlit
 
+Run with:
+streamlit run src/snowpark_for_python_and_streamlit.py
+
 Adapted from:
 https://quickstarts.snowflake.com/guide/
 getting_started_with_snowpark_for_python_streamlit
 """
+
+import os
+from dotenv import load_dotenv
 
 import pandas as pd
 import altair as alt
@@ -12,10 +18,14 @@ import streamlit as st
 
 from datetime import timedelta
 
-from snowflake.snowpark import Window
-from snowflake.snowpark.context import get_active_session
+from snowflake.snowpark import Session, Window
+# from snowflake.snowpark.context import get_active_session
 from snowflake.snowpark.functions import col, when, max, lag
-# from snowflake.snowpark.functions import sum, col, when, max, lag
+
+load_dotenv()
+USER = os.getenv('SNOWSQL_USER')
+ACCOUNT = os.getenv('SNOWSQL_ACCOUNT')
+PASSWORD = os.getenv('SNOWSQL_PWD')
 
 TICKERS = ['AAPL', 'MSFT', 'AMZN', 'GOOGL', 'META', 'TSLA', 'NVDA']
 STOCK_PRICE_TABLE = (
@@ -29,7 +39,19 @@ FX_RATES_TABLE = (
 st.set_page_config(layout="wide")
 
 # Get current session
-session = get_active_session()
+# session = get_active_session()
+
+# Create a Snowpark session explicitly
+connection_parameters = {
+    "account": ACCOUNT,
+    "user": USER,
+    "password": PASSWORD,
+    "role": "ACCOUNTADMIN",
+    "warehouse": "TRANSFORMING",
+    "database": "SNOWFLAKE_PUBLIC_DATA_FREE",
+    "schema": "PUBLIC_DATA_FREE"
+}
+session = Session.builder.configs(connection_parameters).create()
 
 
 @st.cache_data()
@@ -40,7 +62,6 @@ def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
     # Load and transform daily stock price data.
     snow_df_stocks = (
         session.table(STOCK_PRICE_TABLE)
-        # session.table("FINANCIAL__ECONOMIC_ESSENTIALS.CYBERSYN.STOCK_PRICE_TIMESERIES")
         .filter(
             (col('TICKER').isin(TICKERS)) &
             (col('VARIABLE_NAME').isin('Nasdaq Volume', 'Post-Market Close'))
@@ -55,7 +76,7 @@ def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
         )
     )
 
-    # Adding the Day over Day Post-market Close Change calculation
+    # Add the Day over Day Post-market Close Change calculation
     window_spec = Window.partitionBy("TICKER").orderBy("DATE")
     snow_df_stocks_transformed = snow_df_stocks.withColumn(
         "DAY_OVER_DAY_CHANGE", (
@@ -69,7 +90,6 @@ def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
     # Load foreign exchange (FX) rates data.
     snow_df_fx = (
         session.table(FX_RATES_TABLE)
-        # session.table("FINANCIAL__ECONOMIC_ESSENTIALS.CYBERSYN.FX_RATES_TIMESERIES")
         .filter(
             (col('BASE_CURRENCY_ID') == 'EUR') & (col('DATE') >= '2019-01-01')
         ).with_column_renamed('VARIABLE_NAME', 'EXCHANGE_RATE')
