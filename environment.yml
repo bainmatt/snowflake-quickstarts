@@ -17,25 +17,33 @@
 #
 
 name: snowflake-quickstarts
+prefix: /Users/matthewbain/mambaforge/envs/snowflake-quickstarts
 channels:
   - conda-forge
   - nodefaults
 
 dependencies:
-  - python=3.13
+  - python=3.11                  # snowflake-ml-python only supports up to
+                                 # 3.12, with better support for 3.11.
   - pip>=19.0
-  # - jupyter
-  # - ipykernel
+  - jupyter                      # for notebook demos
+  - ipykernel
 
   - python-dotenv
-  # - pandas
+  - joblib                       # for notebook demos
+
+  - pandas
   # - scikit-learn
-  # - scipy
-  # - matplotlib
+  - scipy
+  - matplotlib
+  - seaborn
 
   - streamlit
   - altair
 
+  - snowflake-connector-python
+  - snowflake-snowpark-python
+  - snowflake-ml-python          # for notebook demos
+
   - pip:
-    - snowflake-connector-python
-    - snowflake-snowpark-python
+    - shap                       # for notebook 2

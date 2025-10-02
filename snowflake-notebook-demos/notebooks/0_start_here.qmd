@@ -1,0 +1,170 @@
+---
+title: 1. Data Ingestion
+jupyter: python3
+---
+
+The `diamonds` dataset has been widely used in data science and machine learning. We will use it to demonstrate Snowflake's native data science transformers in terms of database functionality and Spark & Pandas compatibility, using non-synthetic and statistically appropriate data that is well known to the ML community.
+
+### Import Libraries
+
+```{python}
+# [MB] To setup explicit connection
+import os
+from dotenv import load_dotenv
+from snowflake.snowpark import Session
+
+# Snowpark for Python
+from snowflake.snowpark import Column
+import snowflake.snowpark.functions as F
+from snowflake.snowpark.types import DoubleType
+```
+
+```{python}
+# [MB] Load environment variables
+load_dotenv()
+USER = os.getenv('SNOWSQL_USER')
+ACCOUNT = os.getenv('SNOWSQL_ACCOUNT')
+PASSWORD = os.getenv('SNOWSQL_PWD')
+```
+
+### Setup and establish Secure Connection to Snowflake
+
+Notebooks establish a Snowpark Session when the notebook is attached to the kernel. We create a new warehouse, database, and schema that will be used throughout this tutorial.
+
+```{python}
+# [MB] Can't run SQL inside Jupyter notebook. Instead set in following cell.
+# -- Using Warehouse, Database, and Schema created during Setup
+# USE WAREHOUSE ML_HOL_WH;
+# USE DATABASE ML_HOL_DB;
+# USE SCHEMA ML_HOL_SCHEMA;
+```
+
+```{python}
+# [MB] Create a Snowpark session explicitly
+connection_parameters = {
+    "account": ACCOUNT,
+    "user": USER,
+    "password": PASSWORD,
+    "role": "ML_MODEL_HOL_USER",
+    "warehouse": "ML_HOL_WH",
+    "database": "ML_HOL_DB",
+    "schema": "ML_HOL_SCHEMA"
+}
+session = Session.builder.configs(connection_parameters).create()
+
+# Get Snowflake Session object
+# session = get_active_session()
+# session.sql_simplifier_enabled = True
+
+# Add a query tag to the session.
+# session.query_tag = {
+#     "origin":"sf_sit-is",
+#     "name":"e2e_ml_snowparkpython",
+#     "version":{"major":1, "minor":0,},
+#     "attributes":{"is_quickstart":1}
+# }
+
+# Current Environment Details
+print('Connection Established with the following parameters:')
+print('User      : {}'.format(session.get_current_user()))
+print('Role      : {}'.format(session.get_current_role()))
+print('Database  : {}'.format(session.get_current_database()))
+print('Schema    : {}'.format(session.get_current_schema()))
+print('Warehouse : {}'.format(session.get_current_warehouse()))
+```
+
+### Use the Snowpark DataFrame Reader to read in data from the externally staged `diamonds` CSV file
+
+In setup.sql, we staged the `diamonds.csv` file from an external s3 bucket. Now, we can read it in.
+
+For more information on loading data, see documentation on [snowflake.snowpark.DataFrameReader](https://docs.snowflake.com/ko/developer-guide/snowpark/reference/python/api/snowflake.snowpark.DataFrameReader.html).
+
+```{python}
+# Create a Snowpark DataFrame that is configured to load data
+# from the CSV file. We can now infer schema from CSV files.
+diamonds_df = session.read.options({
+    "field_delimiter": ",",
+    "field_optionally_enclosed_by": '"',
+    "infer_schema": True,
+    "parse_header": True
+}).csv("@DIAMONDS_ASSETS")
+
+diamonds_df.to_pandas()
+```
+
+```{python}
+# Look at descriptive stats on the DataFrame
+diamonds_df.describe().to_pandas()
+```
+
+```{python}
+diamonds_df.columns
+```
+
+### Data cleaning
+
+First, let's force headers to uppercase using Snowpark DataFrame operations for standardization when columns are later written to a Snowflake table.
+
+```{python}
+# Force headers to uppercase
+assert diamonds_df
+
+for colname in diamonds_df.columns:
+    if colname == '"table"':
+        new_colname = "TABLE_PCT"
+    else:
+        new_colname = str.upper(colname)
+    diamonds_df = diamonds_df.with_column_renamed(
+        colname,
+        new_colname
+    )
+
+diamonds_df.to_pandas()
+```
+
+Next, we standardize the category formatting for `CUT` using Snowpark DataFrame operations.
+
+This way, when we write to a Snowflake table, there will be no inconsistencies in how the Snowpark DataFrame will read in the category names. Secondly, the feature transformations on categoricals will be easier to encode.
+
+```{python}
+def normalize_values(column: str) -> Column:
+    return F.upper(F.regexp_replace(F.col(column), '[^a-zA-Z0-9]+', '_'))
+
+
+for col in ["CUT"]:
+    diamonds_df = diamonds_df.with_column(col, normalize_values(col))
+
+diamonds_df.to_pandas()
+```
+
+Check the schema.
+
+```{python}
+list(diamonds_df.schema)
+```
+
+Finally, let's cast the decimal types to DoubleType() since DecimalType() isn't support by Snowflake ML at the moment.
+
+```{python}
+assert diamonds_df
+
+for colname in ["CARAT", "X", "Y", "Z", "DEPTH", "TABLE_PCT"]:
+    diamonds_df = diamonds_df.with_column(
+        colname,
+        diamonds_df[colname].cast(DoubleType())
+    )
+
+diamonds_df.to_pandas()
+```
+
+```{python}
+list(diamonds_df.schema)
+```
+
+### Write cleaned data to a Snowflake table
+
+```{python}
+diamonds_df.write.mode('overwrite').save_as_table('diamonds')
+```
+
+In the next notebook, we will perform data transformations with the Snowflake ML Preprocessing API for feature engineering.
