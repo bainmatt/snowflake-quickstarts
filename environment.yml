@@ -16,8 +16,8 @@
 #     $ conda remove <pkg>                     (conda uninstall)
 #
 
-name: snowflake-quickstarts
-prefix: /Users/matthewbain/mambaforge/envs/snowflake-quickstarts
+name: snowflake-playground
+prefix: /Users/matthewbain/mambaforge/envs/snowflake-playground
 channels:
   - conda-forge
   - nodefaults

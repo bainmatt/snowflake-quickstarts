@@ -1,5 +1,5 @@
 """
-Snowflake quickstart: Getting Started With Snowpark for Python and Streamlit
+Snowflake quickstart: Getting Started With Snowpark for Python and Streamlit.
 
 Run with:
 streamlit run src/snowpark_for_python_and_streamlit.py

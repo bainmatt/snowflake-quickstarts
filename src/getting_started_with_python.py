@@ -1,5 +1,5 @@
 """
-Snowflake quickstart: Getting Started with Python
+Snowflake quickstart: Getting Started with Python.
 
 Adapted from:
 https://quickstarts.snowflake.com/guide/getting_started_with_python/#0
