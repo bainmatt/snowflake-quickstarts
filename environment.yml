@@ -23,7 +23,7 @@ channels:
   - nodefaults
 
 dependencies:
-  - python=3.11                  # snowflake-ml-python only supports up to
+  - python=3.12                  # snowflake-ml-python only supports up to
                                  # 3.12, with better support for 3.11.
   - pip>=19.0
   - jupyter                      # for notebook demos
@@ -43,7 +43,8 @@ dependencies:
 
   - snowflake-connector-python
   - snowflake-snowpark-python
-  - snowflake-ml-python          # for notebook demos
+  # - snowflake-ml-python        # for notebook demos; pinned for end2end demo
 
   - pip:
     - shap                       # for notebook 2
+    - snowflake-ml-python        # for notebook demos (Snowflake prefers Conda)

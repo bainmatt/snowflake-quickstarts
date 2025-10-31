@@ -1,5 +1,9 @@
 # -- Dev ---------------------------------------------------------------------
 
+build-an-end-to-end-ml-workflow/deployed/
+*.html
+*.qmd
+
 # Input/Output (arbitrary nesting)
 **/data/
 **/input/
